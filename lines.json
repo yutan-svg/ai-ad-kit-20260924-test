@@ -1,0 +1,60 @@
+{
+  "defaults": {
+    "model": "dreamina-seedance-2-5-260628",
+    "resolution": "720p",
+    "ratio": "9:16",
+    "duration": 4,
+    "generate_audio": true,
+    "seed": 58310,
+    "language": "Japanese",
+    "style": "A stylish Japanese male business lead in his late 20s or early 30s with short natural hair, wearing thin black glasses and a casual beige knit sweater over a white collared shirt, sitting at a desk in a warm startup office, locked-off camera, natural subtle movements only"
+  },
+  "lines": [
+    {
+      "id": "c1",
+      "text": "広告代理店に手数料をこんなに払っているのに、対応が遅い…",
+      "duration": 4,
+      "prompt_extra": "He looks slightly stressed while looking towards the camera, speaking earnestly about his frustration immediately without sighing."
+    },
+    {
+      "id": "c2",
+      "text": "しかも、社内にノウハウが全く残らないんです。",
+      "duration": 4,
+      "prompt_extra": "He speaks candidly and earnestly to the camera about his frustration, speaking immediately without sighing."
+    },
+    {
+      "id": "c3",
+      "text": "それなら、プレイングマネージャー型の伴走支援です！",
+      "duration": 4,
+      "style": "A sharp and trustworthy Japanese male marketing specialist in his early 30s wearing a dark navy tailored jacket, sitting in a bright modern office, speaking warmly and confidently with a friendly smile directly to the camera, locked-off camera, natural subtle movements",
+      "prompt_extra": "He speaks with a reassuring, positive smile"
+    },
+    {
+      "id": "c4",
+      "text": "実務をプロがリードして、まずは目先の成果を出します。",
+      "duration": 5,
+      "style": "A sharp and trustworthy Japanese male marketing specialist in his early 30s wearing a dark navy tailored jacket, sitting in a bright modern office, speaking warmly and confidently with a friendly smile directly to the camera, locked-off camera, natural subtle movements",
+      "prompt_extra": "He speaks clearly and persuasively with natural hand gestures"
+    },
+    {
+      "id": "c5",
+      "text": "さらに社内メンバーを育成して、最短で自走まで伴走！",
+      "duration": 5,
+      "style": "A sharp and trustworthy Japanese male marketing specialist in his early 30s wearing a dark navy tailored jacket, sitting in a bright modern office, speaking warmly and confidently with a friendly smile directly to the camera, locked-off camera, natural subtle movements",
+      "prompt_extra": "He speaks with crisp, articulate pronunciation, enunciating 'sarani' and 'saitan' clearly, smiling encouragingly"
+    },
+    {
+      "id": "c6",
+      "text": "1ヶ月ごとの更新で解約も自由。自走できたら契約終了です！",
+      "duration": 4,
+      "prompt_extra": "He listens and nods with a deeply relieved, bright and confident smile of reassurance and satisfaction, speaking with genuine relief and joy."
+    },
+    {
+      "id": "c7",
+      "text": "まずは無料面談で、お気軽にご相談ください！",
+      "duration": 4,
+      "style": "A sharp and trustworthy Japanese male marketing specialist in his early 30s wearing a dark navy tailored jacket, sitting in a bright modern office, speaking warmly and confidently with a friendly smile directly to the camera, locked-off camera, natural subtle movements",
+      "prompt_extra": "He gives a warm welcoming smile and speaks invitingly"
+    }
+  ]
+}
