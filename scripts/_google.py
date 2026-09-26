@@ -65,6 +65,11 @@ def api_key() -> str:
         return _KEY
     load_env()
     key = os.environ.get("GEMINI_API_KEY", "").strip()
+    if not key and os.environ.get("GOOGLE_KEY_BY_PROXY") == "1":
+        # クラウドの作業環境（AI Studio の Antigravity agent）では、通信の代理サーバーが
+        # generativelanguage.googleapis.com 宛てに鍵のヘッダーを付ける。鍵をファイルに置かずに済む。
+        _KEY = ""
+        return ""
     if not key:
         raise SystemExit(
             "GEMINI_API_KEY がありません。Google のモデル（Veo／Omni／Nano Banana／文字起こし）には鍵が要ります。\n"
@@ -83,7 +88,11 @@ def redact(text: str) -> str:
 # HTTP
 # ---------------------------------------------------------------------------
 def _headers() -> dict[str, str]:
-    return {"Content-Type": "application/json", "x-goog-api-key": api_key()}
+    h = {"Content-Type": "application/json"}
+    key = api_key()
+    if key:
+        h["x-goog-api-key"] = key
+    return h
 
 
 def post_json(url: str, body: dict[str, Any], timeout: float = 900, soft: bool = False) -> dict[str, Any]:
@@ -115,7 +124,8 @@ def get_json(url: str, timeout: float = 120) -> dict[str, Any]:
 
 
 def get_bytes(uri: str, timeout: float = 600) -> bytes:
-    req = urllib.request.Request(uri, headers={"x-goog-api-key": api_key()})
+    key = api_key()
+    req = urllib.request.Request(uri, headers=({"x-goog-api-key": key} if key else {}))
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return r.read()
 

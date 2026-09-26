@@ -301,7 +301,7 @@ Chirp 3 HD は `pitch` に対応しないとされることがありますが、
 
 1. Playground で Antigravity Agent Preview を選び、Gemini API キーを紐づける
 2. Sources → Repository に、キットのリポジトリを **https 形式**（`https://github.com/…`）で指定する（`github://` 形式だとエラーになる）。マウント先は既定の `/new_repository` のまま
-3. Sources → Inline file で `/new_repository/.env` を作り、生成 API の鍵（`ARK_API_KEY` など）を入れる。鍵はチャットに貼らない
+3. Google のモデルだけを使うなら鍵のファイルは不要。既定の通信ルール「Gemini API (default)」が鍵のヘッダーを付けるので、環境変数 `GOOGLE_KEY_BY_PROXY=1` を付けて実行する（`GOOGLE_KEY_BY_PROXY=1 python3 scripts/generate_google.py …`）。Seedance など Google 以外を使うときだけ、Sources → Inline file で `/new_repository/.env` を作って鍵を入れる（File path を先に書き換える。既定の `/new_file` のままだと効かない）
 4. Network に、npm の配布元 `registry.npmjs.org` と、使う生成 API のドメイン（Seedance は `ark.ap-southeast.bytepluses.com`、Gemini は `generativelanguage.googleapis.com`）を足す。**設定を変えたら Type を New にして環境を作り直す**（既存の環境には効かない）
 5. 最初の会話で `npm i` を通す。ffmpeg と Python は最初から入っている。音声認識は whisper のモデルが無いので `ai-ad.config.json` の `asrEngine` を `gemini` にする
 6. 承諾と耳の確認は端末が無いので、AI がチャットで内容を示し、依頼主の返答の原文を `approve.py --chat "…"`／`ear_check.py --chat-verdict A --chat "…"` に渡す（`RULES.md` 第1部0節）。切り出した音は Environment settings の Download で取り出して聴く
