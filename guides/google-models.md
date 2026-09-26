@@ -302,9 +302,10 @@ Chirp 3 HD は `pitch` に対応しないとされることがありますが、
 1. Playground で Antigravity Agent Preview を選び、Gemini API キーを紐づける
 2. Sources → Repository に、キットのリポジトリを **https 形式**（`https://github.com/…`）で指定する（`github://` 形式だとエラーになる）。マウント先は既定の `/new_repository` のまま
 3. Google のモデルだけを使うなら鍵のファイルは不要。既定の通信ルール「Gemini API (default)」が鍵のヘッダーを付けるので、環境変数 `GOOGLE_KEY_BY_PROXY=1` を付けて実行する（`GOOGLE_KEY_BY_PROXY=1 python3 scripts/generate_google.py …`）。Seedance など Google 以外を使うときだけ、Sources → Inline file で `/new_repository/.env` を作って鍵を入れる（File path を先に書き換える。既定の `/new_file` のままだと効かない）
-4. Network に、npm の配布元 `registry.npmjs.org` と、使う生成 API のドメイン（Seedance は `ark.ap-southeast.bytepluses.com`、Gemini は `generativelanguage.googleapis.com`）を足す。**設定を変えたら Type を New にして環境を作り直す**（既存の環境には効かない）
+4. Network に、npm の配布元 `registry.npmjs.org`、書き出し用ブラウザの配布元 `remotion.media`、使う生成 API のドメイン（Seedance は `ark.ap-southeast.bytepluses.com`。Gemini は既定ルールに含まれる）を足す。**設定を変えたら Type を New にして環境を作り直す**（既存の環境には効かない）。画面の癖: 行を1つ足して入力してから次を足すと、**最初の行が保存時に消える**ことがあった（3回再現）。先に必要な数だけ「Add to allowlist」で行を足し、そのあと上から順に入力し、保存後にもう一度開いて残っているか確かめる
 5. 最初の会話で `npm i` を通す。ffmpeg と Python は最初から入っている。音声認識は whisper のモデルが無いので `ai-ad.config.json` の `asrEngine` を `gemini` にする
 6. 承諾と耳の確認は端末が無いので、AI がチャットで内容を示し、依頼主の返答の原文を `approve.py --chat "…"`／`ear_check.py --chat-verdict A --chat "…"` に渡す（`RULES.md` 第1部0節）。切り出した音は Environment settings の Download で取り出して聴く
-7. 完成した mp4 も Download（環境全体の tar）で取り出す
+7. 書き出し（`npm run render`）は、初回に `npx remotion browser ensure` で書き出し用ブラウザ（約90MB）を `remotion.media` から取る。サンドボックスの中のブラウザは外部に届かない（許可した Google Fonts のホストでも名前解決に失敗する）ので、テロップのフォントは同梱の `assets/fonts/NotoSansJP-Bold.ttf` に自動で切り替わる（`src/fonts.ts`）。2026-09-26 に 2 秒の確認用シーンで h264 1080×1920 の mp4 が書き出せた
+8. 完成した mp4 は Download（環境全体の tar）で取り出す。**ただし当社の試行では tar が 0 バイトで落ちてきた（4回）**。確実な取り出し方は未解決（Google に確認中）。応急策として、確認用の1コマを `ffmpeg` で小さな JPEG にし `base64` で会話に出す方法は通るが、モデルが写し間違えるので `split` と `md5sum` で区切って照合が要る
 
 ページを開き直すと設定が初期化されるので、1つの会話の中で進めます。1回の作業のトークン上限（token cap）は会話の累計に効きます。
