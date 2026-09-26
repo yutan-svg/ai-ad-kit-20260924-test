@@ -1,17 +1,21 @@
 {
-  "sceneFiles": ["src/scenes.ts"],
+  "sceneFiles": [
+    "src/scenes.ts"
+  ],
   "publicDir": "assets",
   "whisperModel": ".whisper-models/ggml-large-v3-turbo.bin",
   "whisperModel2": ".whisper-models/ggml-kotoba-whisper-v2.0.bin",
-  "asrEngine": "whisper",
-  "asrEngine2": "whisper",
+  "asrEngine": "gemini",
+  "asrEngine2": "gemini",
   "geminiAsrModel": "gemini-3.5-flash",
   "pronunciationDict": "scripts/pronunciation_dict.json",
   "pronunciationDictExtra": "knowledge/pronunciation.json",
   "ngWords": "scripts/asr_ng_words.txt",
   "takesDir": "assets/videos/takes",
   "fontFamily": "Noto Sans JP",
-  "fontCharWidth": {"Noto Sans JP": 1.02},
+  "fontCharWidth": {
+    "Noto Sans JP": 1.02
+  },
   "earCheckWords": [],
   "earCheckIgnore": [],
   "videoWidth": 1080,

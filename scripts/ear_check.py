@@ -117,6 +117,9 @@ def main() -> int:
     ap.add_argument("--text", default="", help="その音声で話している台本（危険語をここから拾う）")
     ap.add_argument("--words", default="", help="危険語を自分で指定する（カンマ区切り）")
     ap.add_argument("--list", action="store_true", help="いまの記録を表示して終わる")
+    ap.add_argument("--chat-verdict", default=None, choices=["A", "B", "x", "a", "b", "X"],
+                    help="端末が無い環境で、依頼主がチャットで返した判定（A / B / x）")
+    ap.add_argument("--chat", default=None, metavar="依頼主の返答の原文", help="その判定を含む依頼主の返答をそのまま渡す")
     a = ap.parse_args()
 
     cfg = load_config()
@@ -124,11 +127,13 @@ def main() -> int:
         return cmd_list(cfg)
     if not a.files:
         ap.error("確かめる音声・動画のパスを指定してください")
-    if not sys.stdin.isatty():
+    chat_mode = not sys.stdin.isatty()
+    if chat_mode and not (a.chat_verdict and a.chat):
         raise SystemExit(
             "✗ 耳での確認は対話でしか記録できません（いまは対話ではありません）。\n"
-            "  人が実際に聴いて A / B / どちらも不可 を答える必要があります。\n"
-            "  AI が out/ear-check.json を書いてはいけません。")
+            "  端末が無い環境では、切り出した音を依頼主にダウンロードして聴いてもらい、返ってきた判定と原文を\n"
+            "    --chat-verdict A|B|x --chat \"<依頼主の返答の原文>\"\n"
+            "  に渡してください。AI が判定を作ってはいけません。")
 
     paths = [resolve(cfg, f) for f in a.files[:2]]
     for p in paths:
@@ -172,16 +177,19 @@ def main() -> int:
     say("")
     choices = "A / B / x（どちらも不可）" if len(paths) == 2 else "A（このまま使える） / x（不可）"
     verdict = ""
+    if chat_mode:
+        verdict = a.chat_verdict.lower()
+        say(f"  判定（チャット経由）: {verdict.upper()} 「{a.chat}」")
     while verdict not in (["a", "x"] + (["b"] if len(paths) == 2 else [])):
         verdict = input(f"  どれを採用しますか？ {choices}: ").strip().lower()
     chosen = None if verdict == "x" else paths[0 if verdict == "a" else 1]
-    note = input("  気づいたこと（任意・そのまま Enter でも可）: ").strip()
+    note = a.chat if chat_mode else input("  気づいたこと（任意・そのまま Enter でも可）: ").strip()
 
     rec = {
         "id": check_id,
         "listened_by_human": True,
         "passed": chosen is not None,
-        "verdict": verdict.upper(),
+        "verdict": verdict.upper(), "channel": "chat" if chat_mode else "tty",
         "words": words,
         "files": [rel(cfg, p) for p in paths],
         "chosen": rel(cfg, chosen) if chosen else None,

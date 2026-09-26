@@ -35,14 +35,31 @@ import _gates  # noqa: E402
 from _config import caption_rows, load_config, parse_scenes, rel, resolve, scene_files  # noqa: E402
 
 
+CHAT_QUOTE: str | None = None  # --chat で渡された依頼主の返答（クラウド環境など tty が無いとき）
+AFFIRMATIVE = ("y", "yes", "はい", "ok", "OK", "承諾", "お願い", "進めて", "よい", "良い", "大丈夫")
+
+
 def ask(question: str) -> bool:
-    """対話で y/N を聞く。tty でなければ失敗させる（自動承諾を作らせない）。"""
-    if not sys.stdin.isatty():
+    """対話で y/N を聞く。tty でなければ、--chat で渡された依頼主の返答の原文だけを承諾として扱う。
+
+    クラウドの作業環境（AI Studio など）には端末が無いので、AI がチャットで内容を示し、依頼主が返した
+    文言をそのまま --chat に渡す。記録には channel=chat と原文が残る（端末の対話より弱い経路なので区別する）。
+    AI が自分で肯定の文を作って渡すことは禁止（RULES.md 第1部0節）。"""
+    if sys.stdin.isatty():
+        answer = input(question).strip().lower()
+        return answer in ("y", "yes")
+    if not CHAT_QUOTE:
         raise SystemExit(
             "✗ 承諾は対話でしか記録できません（いまは対話ではありません）。\n"
-            "  人が画面を見て y と答える必要があります。AI が記録を書いてはいけません。")
-    answer = input(question).strip().lower()
-    return answer in ("y", "yes")
+            "  端末が無い環境では、内容をチャットで依頼主に示し、返ってきた文言をそのまま\n"
+            "    --chat \"<依頼主の返答の原文>\"\n"
+            "  に渡してください。AI が肯定の文を作って渡してはいけません。")
+    print(question + f"（チャット経由: 「{CHAT_QUOTE}」）")
+    return any(w.lower() in CHAT_QUOTE.lower() for w in AFFIRMATIVE)
+
+
+def consent_meta() -> dict[str, Any]:
+    return {"channel": "chat", "quote": CHAT_QUOTE} if CHAT_QUOTE else {"channel": "tty"}
 
 
 def scene_summary(cfg: dict[str, Any]) -> tuple[int, float, list[str]]:
@@ -102,7 +119,7 @@ def cmd_render_approval(a: argparse.Namespace, cfg: dict[str, Any]) -> int:
     artifacts = [x for x in data.get("artifacts", []) if x.get("out") != out or x.get("composition") != comp]
     artifacts.append({
         "composition": comp, "out": out, "scenes": count, "total_seconds": round(total, 2),
-        "approved_at": _gates.now(), "approved_at_epoch": _gates.now_epoch(),
+        "approved_at": _gates.now(), "approved_at_epoch": _gates.now_epoch(), **consent_meta(),
     })
     data["artifacts"] = artifacts
     _gates.write_json(path, data)
@@ -187,7 +204,7 @@ def cmd_generation(a: argparse.Namespace, cfg: dict[str, Any]) -> int:
     path = _gates.generation_approval_path(cfg)
     _gates.write_json(path, {
         "ids": ids, "takes": a.takes, "service": a.service,
-        "at": _gates.now(), "at_epoch": _gates.now_epoch(),
+        "at": _gates.now(), "at_epoch": _gates.now_epoch(), **consent_meta(),
     })
     print(f"✓ 承諾を記録しました -> {_gates.GENERATION_APPROVAL}")
     return 0
@@ -205,9 +222,13 @@ def main() -> int:
                     help="--generation のとき: どのサービスで作るか（seedance／veo／omni／nano-banana など）")
     ap.add_argument("--lines", default="lines.json",
                     help="--generation のとき: セリフを読む lines.json（無ければ id だけを表示する）")
+    ap.add_argument("--chat", default=None, metavar="依頼主の返答の原文",
+                    help="端末が無い環境（クラウド）で、チャットで得た依頼主の返答をそのまま渡す。記録に channel=chat と原文が残る")
     ap.add_argument("--note", default=None,
                     help="--generation のとき: lines.json に無いものの内容を1行で書く（トーキングヘッドの台本など）")
     a = ap.parse_args()
+    global CHAT_QUOTE
+    CHAT_QUOTE = a.chat
 
     cfg = load_config()
     if a.generation:

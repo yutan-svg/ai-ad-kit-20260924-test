@@ -294,3 +294,17 @@ Chirp 3 HD は `pitch` に対応しないとされることがありますが、
 - Antigravity: https://antigravity.google/docs/getting-started/ ／ /docs/ide/rules/ ／ /docs/ide/skills/ ／ /docs/ide/hooks/ ／ /docs/subagents/
 
 仕様は変わります。断定する前に、上の一次情報で確かめてください（`RULES.md` 決まり32）。
+
+## クラウドの作業環境（AI Studio の Antigravity agent）で動かすとき
+
+2026-09-26 に当社で確かめた範囲の手順です。担当者のパソコンに何も入れずに、同じキットを動かします。
+
+1. Playground で Antigravity Agent Preview を選び、Gemini API キーを紐づける
+2. Sources → Repository に、キットのリポジトリを **https 形式**（`https://github.com/…`）で指定する（`github://` 形式だとエラーになる）。マウント先は既定の `/new_repository` のまま
+3. Sources → Inline file で `/new_repository/.env` を作り、生成 API の鍵（`ARK_API_KEY` など）を入れる。鍵はチャットに貼らない
+4. Network に、npm の配布元 `registry.npmjs.org` と、使う生成 API のドメイン（Seedance は `ark.ap-southeast.bytepluses.com`、Gemini は `generativelanguage.googleapis.com`）を足す。**設定を変えたら Type を New にして環境を作り直す**（既存の環境には効かない）
+5. 最初の会話で `npm i` を通す。ffmpeg と Python は最初から入っている。音声認識は whisper のモデルが無いので `ai-ad.config.json` の `asrEngine` を `gemini` にする
+6. 承諾と耳の確認は端末が無いので、AI がチャットで内容を示し、依頼主の返答の原文を `approve.py --chat "…"`／`ear_check.py --chat-verdict A --chat "…"` に渡す（`RULES.md` 第1部0節）。切り出した音は Environment settings の Download で取り出して聴く
+7. 完成した mp4 も Download（環境全体の tar）で取り出す
+
+ページを開き直すと設定が初期化されるので、1つの会話の中で進めます。1回の作業のトークン上限（token cap）は会話の累計に効きます。
